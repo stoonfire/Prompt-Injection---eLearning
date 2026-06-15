@@ -53,7 +53,7 @@ interface Scenario {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"learn" | "simulator" | "visualizer" | "quiz" | "export">("learn");
+  const [activeTab, setActiveTab] = useState<"learn" | "simulator" | "visualizer" | "quiz">("learn");
 
   // --- Scenario States ---
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState<number>(0);
@@ -75,9 +75,6 @@ export default function App() {
   // --- Visualizer States ---
   const [visualizerMode, setVisualizerMode] = useState<"safe" | "injection">("safe");
   const [visualizerStep, setVisualizerStep] = useState<number>(0);
-
-  // --- Copy/Download states ---
-  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   // Auto step progress for visualizer
   useEffect(() => {
@@ -324,7 +321,8 @@ export default function App() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Was ist Prompt Injection? - Interaktive Lern-App</title>
+  <meta name="robots" content="noindex, nofollow">
+  <title>Prompt Injection - eLearning</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts Inter & Playfair Display -->
@@ -1057,26 +1055,6 @@ export default function App() {
 </html>`;
   };
 
-  const handleDownloadHTML = () => {
-    const htmlContent = generateStandaloneHTML();
-    const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "was_ist_prompt_injection.html";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(generateStandaloneHTML());
-    setIsCopied(true);
-    setTimeout(() => {
-      setIsCopied(false);
-    }, 2000);
-  };
-
   return (
     <div className="bg-[#0f172a] text-[#f8fafc] min-h-screen relative font-sans selection:bg-[#6366f1] selection:text-white flex flex-col md:flex-row shadow-inner">
       
@@ -1104,8 +1082,7 @@ export default function App() {
               { id: "learn", label: "Einführung", icon: <BookOpen className="w-4 h-4 shrink-0" /> },
               { id: "visualizer", label: "Datenfluss-Analyse", icon: <Eye className="w-4 h-4 shrink-0" /> },
               { id: "simulator", label: "KI-Simulator", icon: <Terminal className="w-4 h-4 shrink-0" /> },
-              { id: "quiz", label: "Wissenstest", icon: <Award className="w-4 h-4 shrink-0" /> },
-              { id: "export", label: "HTML Export", icon: <Download className="w-4 h-4 shrink-0" /> }
+              { id: "quiz", label: "Wissenstest", icon: <Award className="w-4 h-4 shrink-0" /> }
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -1782,7 +1759,7 @@ export default function App() {
                       <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
                         {quizScore === quizQuestions.length
                           ? "Hervorragend! Du kennst die Gefahren und Schutzvorkehrungen von LLM-Injections wie ein Profi-Engineer."
-                          : "Guter Versuch! Prompt-Security ist ein komplexes Feld. Wiederhole das Quiz oder nimm den HTML-Export mit."}
+                          : "Guter Versuch! Prompt-Security ist ein komplexes Feld. Wiederhole das Quiz, um dein Wissen zu festigen."}
                       </p>
                       <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
                         <button
@@ -1791,124 +1768,11 @@ export default function App() {
                         >
                           Nochmal spielen
                         </button>
-                        <button
-                          onClick={() => setActiveTab("export")}
-                          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all"
-                        >
-                          HTML-Code exportieren
-                        </button>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            </motion.section>
-          )}
-
-          {/* TAB 5: HTML EXPORT PORTAL */}
-          {activeTab === "export" && (
-            <motion.section
-              key="export"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-              id="edu-export-section"
-            >
-              <div className="text-center space-y-2 max-w-2xl mx-auto">
-                <h2 className="text-2xl md:text-3xl font-extrabold text-white">💾 Autarken HTML-Code herunterladen</h2>
-                <p className="text-slate-400 text-sm">
-                  Wie gewünscht kannst du die gesamte App als eine einzige, in sich geschlossene HTML-Datei herunterladen oder den Quellcode kopieren, um ihn lokal im Browser auszuführen.
-                </p>
-              </div>
-
-              {/* Action boxes */}
-              <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-2" id="export-action-cards">
-                
-                {/* Download Card */}
-                <div className="bg-slate-900/60 border border-slate-900 p-6 rounded-2xl flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-xl w-fit text-emerald-400">
-                      <Download className="w-6 h-6 text-emerald-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white">Als HTML-Datei speichern</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Lade die vollständige Anwendung direkt auf deine Festplatte herunter. Du kannst die Datei per Doppelklick in Google Chrome, Firefox, Safari oder Edge ohne Internetserver starten!
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleDownloadHTML}
-                    className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
-                  >
-                    <Download className="w-4 h-4 text-slate-950" />
-                    <span>Herunterladen (.html)</span>
-                  </button>
-                </div>
-
-                {/* Instant Clipboard Copy */}
-                <div className="bg-slate-900/60 border border-slate-900 p-6 rounded-2xl flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <div className="p-3 bg-indigo-500/10 border border-indigo-500/25 rounded-xl w-fit text-indigo-400">
-                      <Copy className="w-6 h-6 text-indigo-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white">Quellcode direkt kopieren</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Kopiere den vollständigen HTML-Quelltext mit einem Klick in deine Zwischenablage, um ihn in deiner eigenen Entwicklungsumgebung wie VS Code oder dem Editor zu verwenden.
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleCopyCode}
-                    className={`w-full py-3 font-bold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-all ${
-                      isCopied 
-                        ? "bg-slate-800 text-emerald-400 border border-emerald-500/30 font-semibold"
-                        : "bg-indigo-600 hover:bg-indigo-500 text-white"
-                    }`}
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check className="w-4 h-4 text-emerald-400" />
-                        <span>Code kopiert!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 text-white" />
-                        <span>In Zwischenablage kopieren</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-              </div>
-
-              {/* Code preview area */}
-              <div className="max-w-4xl mx-auto space-y-2">
-                <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
-                  <Code className="w-4 h-4 text-indigo-400" /> Quellcode-Ausschnitt (Erste 30 Zeilen):
-                </span>
-                <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 font-mono text-xs text-slate-400 overflow-x-auto select-none max-h-48">
-                  <pre>{`<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Was ist Prompt Injection? - Interaktive Lern-App</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-  </style>
-... [Der vollständige interaktive Simulationscode mit allen Skripten] ...`}</pre>
-                </div>
-              </div>
-
             </motion.section>
           )}
 
